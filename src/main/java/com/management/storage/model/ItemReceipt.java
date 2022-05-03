@@ -2,26 +2,32 @@ package com.management.storage.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.management.storage.model.composite.ItemProcurementId;
+import com.management.storage.model.composite.ItemReceiptId;
 import com.management.storage.model.composite.ItemStorageId;
-import com.management.storage.model.composite.ProductReceiptId;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Entity
-@Table(name= "product_receipt")
+@Table(name= "item_receipt")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class ProductReceipt {
+public class ItemReceipt {
     @EmbeddedId
     @JsonIgnore
-    private ProductReceiptId id;
+    private ItemReceiptId id;
 
     @ManyToOne
-    @MapsId("productId")
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @MapsId("itemId")
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     @ManyToOne
     @MapsId("receiptId")
@@ -29,15 +35,12 @@ public class ProductReceipt {
     @JsonIgnore
     private Receipt receipt;
 
+    @ManyToOne
+    @MapsId("storageId")
+    @JoinColumn(name = "storage_id")
+    @JsonIgnore
+    private Storage storage;
+
     @Column(name = "quantity")
     private Integer quantity;
-
-    public ProductReceipt() {
-    }
-
-    public ProductReceipt(Product product, Receipt receipt, Integer quantity) {
-        this.product = product;
-        this.receipt = receipt;
-        this.quantity = quantity;
-    }
 }

@@ -1,7 +1,10 @@
 package com.management.storage.controller;
 
 
+import com.management.storage.dto.response.MostSelledDoor;
+import com.management.storage.dto.response.MostSelledDoorResponse;
 import com.management.storage.model.Receipt;
+import com.management.storage.repository.ColorRepository;
 import com.management.storage.repository.ReceiptRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,9 @@ import java.util.List;
 public class ReceiptController {
     @Autowired
     private ReceiptRepository receiptRepository;
+
+    @Autowired
+    private ColorRepository colorRepository;
 
     @GetMapping
     List<Receipt> findAll(){return receiptRepository.findAll();}
@@ -34,5 +40,24 @@ public class ReceiptController {
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     public void delete(@PathVariable Long id){
         receiptRepository.deleteById(id);
+    }
+
+    @GetMapping("/last")
+    public Receipt getLastest() {
+        return receiptRepository.getLastReceipt();
+    }
+
+    @GetMapping("/most-selled-door")
+    public MostSelledDoorResponse getMostSelledDoor() {
+        MostSelledDoor mostSelledDoor = receiptRepository.mostSelledDoor();
+        String doorColor = colorRepository.getById(mostSelledDoor.getColor_Id()).getValue();
+        String name = mostSelledDoor.getValue() + " - " + doorColor;
+        return new MostSelledDoorResponse(name, mostSelledDoor.getCount());
+
+    }
+
+    @GetMapping("/count-receipts-current-month")
+    public Integer countReceiptsForCurrentMonth() {
+        return receiptRepository.countReceiptsForCurrentMonth();
     }
 }

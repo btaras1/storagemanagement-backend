@@ -1,78 +1,46 @@
 package com.management.storage.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Entity
+@Table(name = "storage")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Storage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(length = 30)
     private String name;
+    @Column(length = 50)
     private String location;
+    @CreationTimestamp
+    @Temporal(TemporalType.DATE)
+    private Date created;
+    @UpdateTimestamp
+    @Temporal(TemporalType.DATE)
+    private Date modified;
 
     @OneToMany(mappedBy = "storage")
     private Set<ItemStorage> itemStorages = new HashSet<>();
 
     @OneToMany(mappedBy="storage")
     @JsonIgnore
-    private List<StorageArchive> storageArchives;
-
-    @OneToMany(mappedBy="storage")
-    @JsonIgnore
-    private List<Product> products;
-
-    @OneToMany(mappedBy="storage")
-    @JsonIgnore
     private List<Procurement> procurements;
-
-    public Storage() {
-    }
-
-    public Storage(String name, String location, Set<ItemStorage> itemStorages, List<StorageArchive> storageArchives) {
-        this.name = name;
-        this.location = location;
-        this.itemStorages = itemStorages;
-        this.storageArchives = storageArchives;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public Set<ItemStorage> getItemStorages() {
-        return itemStorages;
-    }
-
-    public void setItemStorages(Set<ItemStorage> itemStorages) {
-        this.itemStorages = itemStorages;
-    }
-
-    public List<StorageArchive> getStorageArchives() {
-        return storageArchives;
-    }
-
-    public void setStorageArchives(List<StorageArchive> storageArchives) {
-        this.storageArchives = storageArchives;
-    }
 }

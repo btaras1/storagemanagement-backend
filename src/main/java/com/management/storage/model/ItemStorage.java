@@ -3,12 +3,15 @@ package com.management.storage.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.management.storage.model.composite.ItemStorageId;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -32,21 +35,4 @@ public class ItemStorage {
 
     @Column(name = "quantity")
     private Integer quantity;
-
-    public ItemStorage() {
-    }
-
-    public ItemStorage(Item item, Storage storage, Integer quantity) {
-        this.item = item;
-        this.storage = storage;
-        this.quantity = quantity;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
 }

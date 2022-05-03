@@ -19,7 +19,7 @@ public class ItemController {
     @GetMapping
     List<Item> findAll(){ return itemRepository.findAll();}
 
-    @RequestMapping(value = "/type/{type:door|motor|guide}", method = RequestMethod.GET)
+    @RequestMapping(value = "/type/{type:door|motor|guide|suspension}", method = RequestMethod.GET)
     List<Item> findAllByType(@PathVariable String type){return itemRepository.findAllByType(type.toUpperCase(Locale.ROOT));}
 
     @GetMapping("{id}")

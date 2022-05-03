@@ -1,5 +1,12 @@
 package com.management.storage.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -8,84 +15,46 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Entity
+@Table(name = "receipt")
 public class Receipt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Temporal(TemporalType.DATE)
     private Date sold;
-
+    @Temporal(TemporalType.DATE)
     @Nullable
-    private Date mounted;
+    private Date mountedDate;
+    @Nullable
+    private Boolean mounted;
+    @Nullable
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.DATE)
+    private Date created;
+    @UpdateTimestamp
+    @Temporal(TemporalType.DATE)
+    private Date modified;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="buyer_id", nullable=true)
     private Buyer buyer;
 
-    @Nullable
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="employee_id", nullable=true)
-    private Employee employee;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "employee_receipt",
+            joinColumns = @JoinColumn(name = "receipt_id"),
+            inverseJoinColumns = @JoinColumn(name = "employee_id"))
+    private List<Employee> employees;
 
-    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductReceipt> productReceipts = new HashSet<>();
-
-
-    public Receipt() {
-    }
-
-    public Receipt(Date sold, @Nullable Date mounted, Buyer buyer, @Nullable Employee employee) {
-        this.sold = sold;
-        this.mounted = mounted;
-        this.buyer = buyer;
-        this.employee = employee;
-
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Date getSold() {
-        return sold;
-    }
-
-    public void setSold(Date sold) {
-        this.sold = sold;
-    }
-
-    @Nullable
-    public Date getMounted() {
-        return mounted;
-    }
-
-    public void setMounted(@Nullable Date mounted) {
-        this.mounted = mounted;
-    }
-
-    public Buyer getBuyer() {
-        return buyer;
-    }
-
-    public void setBuyer(Buyer buyer) {
-        this.buyer = buyer;
-    }
-
-    @Nullable
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(@Nullable Employee employee) {
-        this.employee = employee;
-    }
-
-    public Set<ProductReceipt> getProductReceipts() {
-        return productReceipts;
-    }
-
-    public void setProductReceipts(Set<ProductReceipt> productReceipts) {
-        this.productReceipts = productReceipts;
-    }
+    @OneToMany(mappedBy = "receipt")
+    private Set<ItemReceipt> itemReceipts = new HashSet<>();
 }

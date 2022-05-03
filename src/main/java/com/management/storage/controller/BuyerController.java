@@ -1,5 +1,6 @@
 package com.management.storage.controller;
 
+import com.management.storage.dto.response.MostBuyersFromCity;
 import com.management.storage.model.Buyer;
 import com.management.storage.repository.BuyerRepository;
 import org.springframework.beans.BeanUtils;
@@ -35,6 +36,11 @@ public class BuyerController {
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     public void delete(@PathVariable Long id){
         buyerRepository.deleteById(id);
+    }
+
+    @GetMapping("/top-city")
+    public MostBuyersFromCity topCity() {
+       return buyerRepository.mostBuyersFromCity();
     }
     
     

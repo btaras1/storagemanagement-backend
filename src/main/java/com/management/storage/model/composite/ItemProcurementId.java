@@ -13,6 +13,7 @@ public class ItemProcurementId implements Serializable {
     private Long procurementId;
 
 
+
     public ItemProcurementId() {
     }
 

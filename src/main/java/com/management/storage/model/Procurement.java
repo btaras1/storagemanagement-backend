@@ -1,60 +1,39 @@
 package com.management.storage.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.management.storage.view.View;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Entity
+@Table(name = "procurement")
 public class Procurement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @CreationTimestamp
+    @Temporal(TemporalType.DATE)
     private Date created;
-
+    @UpdateTimestamp
+    @Temporal(TemporalType.DATE)
+    private Date modified;
     @OneToMany(mappedBy = "procurement")
     private Set<ItemProcurement> itemProcurements = new HashSet<>();
 
     @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name="storage_id", nullable=true)
+    @JoinColumn(name="storage_id")
     private Storage storage;
-
-
-    public Procurement() {
-    }
-
-    public Procurement(Date created) {
-        this.created = created;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public Set<ItemProcurement> getItemProcurements() {
-        return itemProcurements;
-    }
-
-    public void setItemProcurements(Set<ItemProcurement> itemProcurements) {
-        this.itemProcurements = itemProcurements;
-    }
-
-    public Storage getStorage() {
-        return storage;
-    }
-
-    public void setStorage(Storage storage) {
-        this.storage = storage;
-    }
 }

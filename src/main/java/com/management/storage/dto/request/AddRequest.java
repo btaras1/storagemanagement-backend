@@ -9,8 +9,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class LoginRequest {
+public class AddRequest {
 
-    private String username;
-    private String password;
+    private Long storageId;
+    private Long itemId;
+    private Integer quantity;
 }

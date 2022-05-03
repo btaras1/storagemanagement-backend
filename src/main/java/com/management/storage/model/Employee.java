@@ -1,57 +1,43 @@
 package com.management.storage.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Entity
+@Table(name = "employee")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(length = 45)
     private String firstname;
+    @Column(length = 45)
     private String lastname;
+    @CreationTimestamp
+    @Temporal(TemporalType.DATE)
+    private Date created;
+    @UpdateTimestamp
+    @Temporal(TemporalType.DATE)
+    private Date modified;
 
-    @OneToMany(mappedBy="employee")
     @JsonIgnore
-    private List<Receipt> receipts;
-
-    public Employee() {
-    }
-
-    public Employee(String firstname, String lastname, List<Receipt> receipts) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.receipts = receipts;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
-    public List<Receipt> getReceipts() {
-        return receipts;
-    }
-
-    public void setReceipts(List<Receipt> receipts) {
-        this.receipts = receipts;
-    }
+    @ManyToMany(mappedBy = "employees")
+    List<Receipt> receipts;
 }

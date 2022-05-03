@@ -35,4 +35,9 @@ public class EmployeeController {
     public void delete(@PathVariable Long id){
         employeeRepository.deleteById(id);
     }
+
+    @GetMapping("/count")
+    public Long count() {
+        return employeeRepository.count();
+    }
 }
