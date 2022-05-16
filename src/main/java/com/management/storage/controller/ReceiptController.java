@@ -13,13 +13,19 @@ import com.management.storage.pdf.service.PdfGenerateService;
 import com.management.storage.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+
+
 
 @RestController
 @RequestMapping("/receipt")
@@ -116,6 +122,24 @@ public class ReceiptController {
         String fileName = "RACUN_" + receipt.getSold().toString() + "_" + receipt.getBuyer().getFirstname() + "_"+ receipt.getBuyer().getLastname() + "_" + UUID.randomUUID().toString() + ".pdf";
        pdfGenerateService.generatePdfFile("receipt", data, fileName);
 
+    }
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity downloadFromDB(@PathVariable Long id) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        Receipt receipt = receiptRepository.getById(id);
+        data.put("buyer", receipt.getBuyer());
+        data.put("receipt", receipt);
+        data.put("itemReceipts", receipt.getItemReceipts());
+        data.put("employees", receipt.getEmployees());
+        String fileName = "RACUN_" + receipt.getSold().toString() + "_" + receipt.getBuyer().getFirstname() + "_"+ receipt.getBuyer().getLastname() + "_" + UUID.randomUUID().toString() + ".pdf";
+        File document = pdfGenerateService.generatePdfFile("receipt", data, fileName);
+        byte[] fileContent = Files.readAllBytes(document.toPath());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(fileContent);
     }
 
     @GetMapping("/most-selled-door")

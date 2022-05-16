@@ -10,8 +10,14 @@ import com.management.storage.repository.ItemStorageRepository;
 import com.management.storage.repository.ProcurementRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 
 @RestController
@@ -82,7 +88,22 @@ public class ProcurementController {
 
 
     }
+    @GetMapping("/download/{id}")
+    public ResponseEntity downloadFromDB(@PathVariable Long id) throws IOException {
+        Map<String, Object> data = new HashMap<>();
+        Procurement procurement = procurementRepository.getById(id);
+        data.put("storage", procurement.getStorage());
+        data.put("procurement", procurement);
+        data.put("itemProcurements", procurement.getItemProcurements());
+        String fileName = "NABAVA_" + procurement.getCreated().toString() + "_" + procurement.getStorage().getName() + "_" + procurement.getStorage().getLocation() + "_" + UUID.randomUUID().toString() + ".pdf";
+        File document = pdfGenerateService.generatePdfFile("procurement", data, fileName);
+        byte[] fileContent = Files.readAllBytes(document.toPath());
 
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(fileContent);
+    }
     @RequestMapping(value = "{id}", method = RequestMethod.PUT)
     public Procurement update(@PathVariable Long id, @RequestBody Procurement procurement){
         Procurement currentProcurement = procurementRepository.getById(id);

@@ -14,6 +14,8 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
+
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.file.Paths;
@@ -45,7 +47,7 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
     }
 
     @Override
-    public void generatePdfFile(String templateName, Map<String, Object> data, String pdfFileName) {
+    public File generatePdfFile(String templateName, Map<String, Object> data, String pdfFileName) {
         pdfDirectory = getDefaultDownloadFolder();
         Paths.get(System.getProperty("user.home"), "Downloads");
         Context context = new Context();
@@ -53,17 +55,19 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
 
         String htmlContent = templateEngine.process(templateName, context);
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(pdfDirectory + pdfFileName);
+            File newPdf = new File(pdfDirectory + pdfFileName);
+            FileOutputStream fileOutputStream = new FileOutputStream(newPdf);
             ITextRenderer renderer = new ITextRenderer();
             renderer.setDocumentFromString(htmlContent);
             renderer.layout();
             renderer.createPDF(fileOutputStream, false);
             renderer.finishPDF();
-
+            return newPdf;
         } catch (FileNotFoundException e) {
             logger.error(e.getMessage(), e);
         } catch (DocumentException e) {
             logger.error(e.getMessage(), e);
         }
+        return null;
     }
 }
