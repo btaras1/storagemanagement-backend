@@ -14,7 +14,6 @@
 	<name>storage-backend</name>
 	<description>Project for storage management</description>
 	<properties>
-		<java.version>11</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
