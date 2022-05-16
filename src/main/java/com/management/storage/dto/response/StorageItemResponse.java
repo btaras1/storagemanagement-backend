@@ -32,6 +32,6 @@ public class StorageItemResponse {
     @Temporal(TemporalType.DATE)
     private Date modified;
 
-    private List<ItemStorageResponse> itemStorages = new ArrayList<>();
+    private Set<ItemStorageResponse> itemStorages = new HashSet<>();
 
 }

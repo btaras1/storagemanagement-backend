@@ -31,6 +31,9 @@ public class ReceiptController {
     private ColorRepository colorRepository;
 
     @Autowired
+    private BuyerRepository buyerRepository;
+
+    @Autowired
     private ItemStorageRepository itemStorageRepository;
 
     @Autowired
@@ -53,8 +56,13 @@ public class ReceiptController {
 
     @PostMapping
     public Receipt create(@RequestBody final Receipt receipt){
+        if(receipt.getBuyer().getId() == null) {
+            Buyer buyer = buyerRepository.saveAndFlush(receipt.getBuyer());
+            receipt.setBuyer(buyer);
+        }
         Receipt currentReceipt = receiptRepository.saveAndFlush(receipt);
         Set<ItemReceipt> itemReceipts = new HashSet<>();
+
 
         for(ItemReceipt itemReceipt: receipt.getItemReceipts()) {
             Item item = itemRepository.getById(itemReceipt.getItem().getId());
@@ -134,8 +142,8 @@ public class ReceiptController {
 
         for (ItemReceipt itemReceipt : currentReceipt.getItemReceipts()){
             ItemStorageId itemStorageId = new ItemStorageId();
-            itemStorageId.setItemId(itemStorageId.getItemId());
-            itemStorageId.setStorageId(itemStorageId.getStorageId());
+            itemStorageId.setItemId(itemReceipt.getItem().getId());
+            itemStorageId.setStorageId(itemReceipt.getStorage().getId());
 
             ItemStorage itemStorage = (itemStorageRepository.findById(itemStorageId)).stream().findFirst().orElse(null);
             if(itemStorage != null) {

@@ -2,6 +2,7 @@ package com.management.storage.pdf.service.impl;
 
 import com.lowagie.text.DocumentException;
 import com.management.storage.pdf.service.PdfGenerateService;
+import com.sun.javafx.PlatformUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +12,14 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.WinReg;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.nio.file.Paths;
 import java.util.Map;
+
+import static org.hibernate.tool.schema.SchemaToolingLogging.LOGGER;
 
 @Service
 public class PdfGenerateServiceImpl implements PdfGenerateService {
@@ -22,11 +28,26 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    @Value("${pdf.directory}")
+
     private String pdfDirectory;
+
+    public static String getDefaultDownloadFolder() {
+        try {
+            if (PlatformUtil.isWindows()) {
+                return Advapi32Util.registryGetStringValue(WinReg.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}");
+            } else {
+                return Paths.get(System.getProperty("user.home"), "Downloads").toString();
+            }
+        } catch (Exception ex) {
+            LOGGER.error("Problem when reading in registry", ex);
+        }
+        return null;
+    }
 
     @Override
     public void generatePdfFile(String templateName, Map<String, Object> data, String pdfFileName) {
+        pdfDirectory = getDefaultDownloadFolder();
+        Paths.get(System.getProperty("user.home"), "Downloads");
         Context context = new Context();
         context.setVariables(data);
 

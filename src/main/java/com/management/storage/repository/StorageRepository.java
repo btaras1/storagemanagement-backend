@@ -17,18 +17,17 @@ public interface StorageRepository extends JpaRepository<Storage, Long> {
             "            GROUP BY it.id, ity.value, it.description, col.value", nativeQuery = true)
     List<ItemsInStorageResponse> allItemsInStorage();
 
-    @Query(value = "SELECT s.id as storageid, r.id as receiptid, it.id as itemid, it.description, it.value as value,  ity.value as type, col.value as color, it.guide_needed as guideNeeded, its.quantity as quantity,\n" +
-            "(SELECT itr.quantity FROM receipt r1, item_receipt itr, storage s1, item i1 \n" +
-            " WHERE r1.id=itr.receipt_id AND s1.id = s.id AND \n" +
-            " i1.id = it.id AND r1.id = r.id AND itr.item_id = i1.id\n" +
-            "AND itr.storage_id = s1.id AND r.mounted=false) as mountedquantity\n" +
-            "FROM item it LEFT JOIN item_storage its ON it.id = its.item_id\n" +
+    @Query(value = "SELECT s.id as storageid, it.id as itemid, it.description, it.value as value,  ity.value as type, col.value as color, it.guide_needed as guideNeeded, its.quantity as quantity,\n" +
+            "(SELECT SUM(itr.quantity) FROM receipt r1, item_receipt itr, storage s1, item i1 \n" +
+            "WHERE r1.id=itr.receipt_id AND s1.id = s.id AND \n" +
+            " i1.id = it.id AND itr.item_id = i1.id\n" +
+            "AND itr.storage_id = s1.id AND r1.mounted=false) as mountedquantity\n" +
+            " FROM item it LEFT JOIN item_storage its ON it.id = its.item_id\n" +
             "LEFT JOIN storage s ON s.id = its.storage_id\n" +
             "LEFT JOIN item_type ity ON ity.id=it.itemtype_id\n" +
             "LEFT JOIN color col ON col.id=it.color_id\n" +
             "LEFT JOIN item_receipt itr ON itr.item_id = it.id AND itr.storage_id = s.id\n" +
-            "LEFT JOIN receipt r ON itr.receipt_id = r.id\n" +
-            "GROUP BY s.id, it.id, r.id,ity.value, it.description, col.value, its.quantity, mountedquantity\n" +
+            " GROUP BY s.id, it.id, ity.value, it.description, col.value, its.quantity, mountedquantity\n" +
             "ORDER BY s.id", nativeQuery = true)
     List<FullDetailItemsInStorage> test();
     @Query(value = "SELECT it.id, it.value as value, it.description, ity.value as type, col.value as color, it.guide_needed as guideNeeded, SUM(itr.quantity) as quantity\n" +

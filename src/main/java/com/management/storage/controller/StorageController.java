@@ -47,7 +47,7 @@ public class StorageController {
             storageResponse.setCreated(storage.getCreated());
             storageResponse.setModified(storage.getModified());
 
-            List<ItemStorageResponse> itemStorageResponses = new ArrayList<>();
+            Set<ItemStorageResponse> itemStorageResponses = new HashSet<>();
             for(FullDetailItemsInStorage detailItem : detailItemsInStorages){
                 if(storage.getId() == detailItem.getStorageid()){
                     ItemStorageResponse itemStorageResponse = new ItemStorageResponse();
