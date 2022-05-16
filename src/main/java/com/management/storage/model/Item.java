@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -41,8 +43,10 @@ public class Item {
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name="color_id", nullable=true)
     private Color color;
+    @CreationTimestamp
     @Temporal(TemporalType.DATE)
     private Date created;
+    @UpdateTimestamp
     @Temporal(TemporalType.DATE)
     private Date modified;
 

@@ -38,7 +38,6 @@ public class ItemReceipt {
     @ManyToOne
     @MapsId("storageId")
     @JoinColumn(name = "storage_id")
-    @JsonIgnore
     private Storage storage;
 
     @Column(name = "quantity")

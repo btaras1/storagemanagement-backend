@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        h1{
+            color: black;
+        }
+
+        .column {
+  float: left;
+  width: 50%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+  margin-bottom: 10px;
+}
+        .quotation {
+            border-collapse: collapse;
+            margin: 25px auto;
+            table-layout: fixed;
+            white-space: nowrap;
+            max-width: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+        }
+        .quotation, .quotation th, .quotation td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        .quotation th {
+            background-color: white;
+            width: 100%;
+            text-align: center;
+        }
+        .quotation td {
+            padding: 12px 15px;
+  line-height: 40px;
+  width: 15%;
+  text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="row">
+<h1>POSAVAC - PROZORI I VRATA d.o.o</h1>
+</div>
+<div class="row">
+    <div class="column">
+        <tr>
+        <th:block th:if="${procurement.created}" th:text="'Datum nabave : '"></th:block>
+        <th:block th:if="${procurement.created}" th:text="${procurement.created}"></th:block>
+    </tr>
+        <tr>
+            <th:block th:if="${storage.name}" th:text="'Skladiste : '"></th:block>
+            <th:block th:if="${storage.name}" th:text="${storage.name} + ' ' + ${storage.location}"></th:block>
+        </tr>
+    </div>
+</div>
+<table class="quotation">
+    <tr>
+        <th>Br. Artikla</th>
+        <th>Naziv</th>
+        <th>Opis</th>
+        <th>Kolicina</th>
+    </tr>
+    <tr th:each="itemR, iterStat: ${itemProcurements}">
+        <td th:text="${itemR.item.id}"></td>
+        <td th:text="${itemR.item.value}"></td>
+        <td th:text="${itemR.item.description}"></td>
+        <td th:text="${itemR.quantity}"></td>
+    </tr>
+</table>
+</body>
+</html>

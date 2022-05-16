@@ -1,5 +1,6 @@
 package com.management.storage.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.management.storage.view.View;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor
@@ -20,6 +22,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "procurement")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Procurement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +34,11 @@ public class Procurement {
     @Temporal(TemporalType.DATE)
     private Date modified;
     @OneToMany(mappedBy = "procurement")
-    private Set<ItemProcurement> itemProcurements = new HashSet<>();
+    private List<ItemProcurement> itemProcurements;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name="storage_id")
     private Storage storage;
+
+
 }

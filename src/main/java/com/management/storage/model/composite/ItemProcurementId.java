@@ -1,18 +1,20 @@
 package com.management.storage.model.composite;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
-
+@Getter
+@Setter
 @Embeddable
 public class ItemProcurementId implements Serializable {
     @Column(name = "item_id")
     private Long itemId;
     @Column(name = "procurement_id")
     private Long procurementId;
-
-
 
     public ItemProcurementId() {
     }

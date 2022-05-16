@@ -1,5 +1,6 @@
 package com.management.storage.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "receipt")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Receipt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +47,7 @@ public class Receipt {
     @Temporal(TemporalType.DATE)
     private Date modified;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name="buyer_id", nullable=true)
     private Buyer buyer;
 

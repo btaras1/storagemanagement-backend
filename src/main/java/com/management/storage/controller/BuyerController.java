@@ -1,5 +1,6 @@
 package com.management.storage.controller;
 
+import com.management.storage.dto.response.BuyerResponse;
 import com.management.storage.dto.response.MostBuyersFromCity;
 import com.management.storage.model.Buyer;
 import com.management.storage.repository.BuyerRepository;
@@ -7,6 +8,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -16,8 +18,23 @@ public class BuyerController {
     private BuyerRepository buyerRepository;
 
     @GetMapping
-    public List<Buyer> findAll(){
-        return buyerRepository.findAll();
+    public List<BuyerResponse> findAll(){
+        List<BuyerResponse> buyerResponses = new ArrayList<>();
+        List<Buyer> buyers = buyerRepository.findAll();
+        for(Buyer buyer : buyers) {
+            BuyerResponse buyerResponse = new BuyerResponse();
+            buyerResponse.setId(buyer.getId());
+            buyerResponse.setFirstname(buyer.getFirstname());
+            buyerResponse.setLastname(buyer.getLastname());
+            buyerResponse.setAddress(buyer.getAddress());
+            buyerResponse.setCity(buyer.getCity());
+            buyerResponse.setMobile(buyer.getMobile());
+            buyerResponse.setReceipts(buyer.getReceipts());
+
+            buyerResponses.add(buyerResponse);
+        }
+
+        return buyerResponses;
     }
 
     @GetMapping("{id}")

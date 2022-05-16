@@ -37,4 +37,5 @@ public class ItemProcurement {
 
     @Column(name = "quantity")
     private Integer quantity;
+
 }

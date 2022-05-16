@@ -35,4 +35,9 @@ public class ItemStorage {
 
     @Column(name = "quantity")
     private Integer quantity;
+
+    public ItemStorage(ItemStorageId id, Integer quantity) {
+        this.id = id;
+        this.quantity = quantity;
+    }
 }

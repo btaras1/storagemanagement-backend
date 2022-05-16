@@ -1,20 +1,18 @@
 package com.management.storage.controller;
 
 
-import com.management.storage.model.Item;
-import com.management.storage.model.ItemProcurement;
-import com.management.storage.model.ItemStorage;
-import com.management.storage.model.Procurement;
+import com.management.storage.model.*;
+import com.management.storage.model.composite.ItemProcurementId;
 import com.management.storage.model.composite.ItemStorageId;
+import com.management.storage.pdf.service.PdfGenerateService;
+import com.management.storage.repository.ItemProcurementRepository;
 import com.management.storage.repository.ItemStorageRepository;
 import com.management.storage.repository.ProcurementRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/procurement")
@@ -25,22 +23,64 @@ public class ProcurementController {
     @Autowired
     private ItemStorageRepository itemStorageRepository;
 
+    @Autowired
+    private ItemProcurementRepository itemProcurementRepository;
+
+    @Autowired
+    private PdfGenerateService pdfGenerateService;
+
     @GetMapping
-    List<Procurement> findAll(){ return procurementRepository.findAll();}
+    List<Procurement> findAll(){ return procurementRepository.findAllByOrderByIdDesc();}
 
     @GetMapping("{id}")
     public Procurement findById(@PathVariable Long id){return procurementRepository.getById(id);}
 
     @PostMapping
     public Procurement create(@RequestBody final Procurement procurement){
-            Set<ItemProcurement> itemsOnProcurement = procurement.getItemProcurements();
-            List<Item> items = new ArrayList<>();
+            List<ItemProcurement> itemsOnProcurement = procurement.getItemProcurements();
+            List<ItemProcurement> mappedItemsOnProcurement = new ArrayList<>();
+            Procurement currentProcurement = procurementRepository.saveAndFlush(procurement);
+
         for (ItemProcurement item: itemsOnProcurement) {
-            ItemStorage itemStorage = itemStorageRepository.getById(new ItemStorageId(item.getItem().getId(), procurement.getStorage().getId()));
-            itemStorage.setQuantity(item.getQuantity() + item.getQuantity());
+            Item currentItem = item.getItem();
+            Storage currentStorage = procurement.getStorage();
+
+            ItemStorageId itemStorageId = new ItemStorageId();
+            itemStorageId.setItemId(currentItem.getId());
+            itemStorageId.setStorageId(currentStorage.getId());
+
+            ItemStorage itemStorage = (itemStorageRepository.findById(itemStorageId)).stream().findFirst().orElse(null);
+
+            if(itemStorage == null) {
+                ItemStorageId newItemStorageId = new ItemStorageId(currentItem.getId(), currentStorage.getId());
+                ItemStorage newItemStorage = new ItemStorage(newItemStorageId,currentItem, currentStorage, item.getQuantity());
+                itemStorageRepository.saveAndFlush(newItemStorage);
+                itemStorage = (itemStorageRepository.findById(newItemStorageId)).stream().findFirst().orElse(null);
+            }
+            else {
+                itemStorage.setQuantity(item.getQuantity() + itemStorage.getQuantity());
+            }
             itemStorageRepository.saveAndFlush(itemStorage);
+            ItemProcurementId currentItemProcurementId = new ItemProcurementId(currentItem.getId(), currentProcurement.getId());
+            ItemProcurement itemProcurement = itemProcurementRepository.saveAndFlush(new ItemProcurement(currentItemProcurementId, currentItem, currentProcurement, item.getQuantity()));
+            mappedItemsOnProcurement.add(itemProcurement);
         }
-            return procurementRepository.saveAndFlush(procurement);
+            currentProcurement.setItemProcurements(null);
+            currentProcurement.setItemProcurements(mappedItemsOnProcurement);
+            return procurementRepository.saveAndFlush(currentProcurement);
+    }
+
+    @GetMapping("/pdf/{id}")
+    public void getPdf(@PathVariable Long id) {
+        Map<String, Object> data = new HashMap<>();
+        Procurement procurement = procurementRepository.getById(id);
+        data.put("storage", procurement.getStorage());
+        data.put("procurement", procurement);
+        data.put("itemProcurements", procurement.getItemProcurements());
+        String fileName = "NABAVA_" + procurement.getCreated().toString() + "_" + procurement.getStorage().getName() + "_" + procurement.getStorage().getLocation() + "_" + UUID.randomUUID().toString() + ".pdf";
+        pdfGenerateService.generatePdfFile("procurement", data, fileName);
+
+
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.PUT)
