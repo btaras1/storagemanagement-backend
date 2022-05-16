@@ -14,16 +14,6 @@ public class AppConfiguration implements WebMvcConfigurer {
                 .allowedMethods("*");
     }
 
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/images/**").addResourceLocations("file:resources/","file:images/");
-        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
-    }
 
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("forward:/index.html");
-        registry.addViewController("/{x:[\\w\\-]+}").setViewName("forward:/index.html");
-        registry.addViewController("/{x:^(?!api$).*$}/*/{y:[\\w\\-]+}").setViewName("forward:/index.html");
-    }
+
 }
