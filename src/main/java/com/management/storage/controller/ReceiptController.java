@@ -141,6 +141,17 @@ public class ReceiptController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .body(fileContent);
     }
+    @GetMapping("setDocumentId")
+    List<Receipt> setDocumentId(){
+        List<Receipt> findAll = receiptRepository.findAll();
+        List<Receipt> newList = new ArrayList<>();
+        for( Receipt receipt : findAll){
+            if(receipt.getDocumentId() == null) receipt.setDocumentId(receipt.getId().toString());
+            newList.add(receipt);
+        }
+        receiptRepository.saveAllAndFlush(newList);
+        return receiptRepository.findAll();
+    }
 
     @GetMapping("/most-selled-door")
     public MostSelledDoorResponse getMostSelledDoor() {

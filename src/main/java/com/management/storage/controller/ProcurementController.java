@@ -8,6 +8,7 @@ import com.management.storage.pdf.service.PdfGenerateService;
 import com.management.storage.repository.ItemProcurementRepository;
 import com.management.storage.repository.ItemStorageRepository;
 import com.management.storage.repository.ProcurementRepository;
+import org.aspectj.util.PartialOrder;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +38,18 @@ public class ProcurementController {
 
     @GetMapping
     List<Procurement> findAll(){ return procurementRepository.findAllByOrderByIdDesc();}
+
+    @GetMapping("setDocumentId")
+    List<Procurement> setDocumentId(){
+        List<Procurement> findAll = procurementRepository.findAll();
+        List<Procurement> newList = new ArrayList<>();
+        for( Procurement procurement : findAll){
+            if(procurement.getDocumentId() == null) procurement.setDocumentId(procurement.getId().toString());
+            newList.add(procurement);
+        }
+        procurementRepository.saveAllAndFlush(newList);
+        return procurementRepository.findAllByOrderByIdDesc();
+    }
 
     @GetMapping("{id}")
     public Procurement findById(@PathVariable Long id){return procurementRepository.getById(id);}

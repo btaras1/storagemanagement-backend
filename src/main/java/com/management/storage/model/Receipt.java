@@ -27,6 +27,7 @@ public class Receipt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String documentId;
     @Temporal(TemporalType.DATE)
     private Date sold;
     @Temporal(TemporalType.DATE)

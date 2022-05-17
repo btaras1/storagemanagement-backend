@@ -27,6 +27,7 @@ public class Procurement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String documentId;
     @CreationTimestamp
     @Temporal(TemporalType.DATE)
     private Date created;
