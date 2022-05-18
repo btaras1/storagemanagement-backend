@@ -1,6 +1,7 @@
 package com.management.storage.repository;
 
 import com.management.storage.dto.response.FullDetailItemsInStorage;
+import com.management.storage.dto.response.ItemsCountResponse;
 import com.management.storage.dto.response.ItemsInStorageResponse;
 import com.management.storage.model.Storage;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -41,6 +42,7 @@ public interface StorageRepository extends JpaRepository<Storage, Long> {
 
 
 
-    @Query(value = "SELECT SUM(its.quantity) as quantity FROM item it LEFT JOIN item_storage its ON it.id = its.item_id LEFT JOIN item_type ity ON ity.id=it.itemtype_id LEFT JOIN color col ON col.id=it.color_id",nativeQuery = true)
-    public Integer sumAllItemsInStorage();
+    @Query(value = "SELECT ity.value, SUM(its.quantity) as quantity FROM item it LEFT JOIN item_storage its ON it.id = its.item_id LEFT JOIN item_type ity ON ity.id=it.itemtype_id LEFT JOIN color col ON col.id=it.color_id\n" +
+            "GROUP BY ity.value",nativeQuery = true)
+    public List<ItemsCountResponse> sumAllItemsInStorage();
 }

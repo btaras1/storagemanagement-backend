@@ -168,8 +168,28 @@ public class StorageController {
     }
 
     @GetMapping("/count-items")
-    public Integer countItems() {
-        return storageRepository.sumAllItemsInStorage();
+    public List<ItemsCountDtoResponse> countItems() {
+        List<ItemsCountResponse> query = storageRepository.sumAllItemsInStorage();
+        List<ItemsCountDtoResponse> result = new ArrayList<>();
+        for(ItemsCountResponse itemCount : query){
+            String realName = "";
+            switch (itemCount.getValue()){
+                case "DOOR":
+                        realName = "Vrata";
+                        break;
+                case "MOTOR":
+                        realName = "Motori";
+                        break;
+                case "GUIDE" :
+                        realName = "Vodilice";
+                        break;
+                case "SUSPENSION":
+                        realName = "Ovjesi";
+                        break;
+            }
+            result.add(new ItemsCountDtoResponse(realName, itemCount.getQuantity()));
+        }
+        return result;
     }
 
 
