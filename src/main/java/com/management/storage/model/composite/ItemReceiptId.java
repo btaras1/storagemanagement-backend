@@ -1,9 +1,6 @@
 package com.management.storage.model.composite;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -12,6 +9,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Embeddable
+@Builder
 public class ItemReceiptId implements Serializable {
     @Column(name = "item_id")
     private Long itemId;
@@ -21,6 +19,11 @@ public class ItemReceiptId implements Serializable {
     private Long storageId;
 
     public ItemReceiptId() {
+    }
+
+    public ItemReceiptId(Long itemId, Long storageId) {
+        this.itemId = itemId;
+        this.storageId = storageId;
     }
 
     public ItemReceiptId(Long itemId, Long receiptId, Long storageId) {

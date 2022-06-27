@@ -2,14 +2,13 @@ package com.management.storage.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -22,20 +21,20 @@ import java.util.Set;
 @Entity
 @Table(name = "employee")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@EqualsAndHashCode(exclude = {"receipts"})
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(length = 45)
+    @NotNull
     private String firstname;
     @Column(length = 45)
     private String lastname;
     @CreationTimestamp
-    @Temporal(TemporalType.DATE)
-    private Date created;
+    private LocalDate created;
     @UpdateTimestamp
-    @Temporal(TemporalType.DATE)
-    private Date modified;
+    private LocalDate modified;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "employees")

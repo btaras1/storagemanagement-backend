@@ -1,13 +1,11 @@
 package com.management.storage.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +16,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "User", schema = "public")
+@EqualsAndHashCode(exclude = {"roles"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,11 +28,9 @@ public class User {
     @Column(length = 150)
     private String password;
     @CreationTimestamp
-    @Temporal(TemporalType.DATE)
-    private Date created;
+    private LocalDate created;
     @UpdateTimestamp
-    @Temporal(TemporalType.DATE)
-    private Date modified;
+    private LocalDate modified;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "role_user",

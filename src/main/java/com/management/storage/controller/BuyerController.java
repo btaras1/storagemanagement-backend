@@ -1,64 +1,55 @@
 package com.management.storage.controller;
 
-import com.management.storage.dto.response.BuyerResponse;
-import com.management.storage.dto.response.MostBuyersFromCity;
+import com.management.storage.dto.response.BuyerResponseDto;
+import com.management.storage.dto.response.MostBuyersFromCityDto;
 import com.management.storage.model.Buyer;
-import com.management.storage.repository.BuyerRepository;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.management.storage.services.BuyerService;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import javax.validation.Valid;
 import java.util.List;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @RestController
 @RequestMapping("/buyer")
+@RequiredArgsConstructor
+@FieldDefaults(level = PRIVATE, makeFinal = true)
 public class BuyerController {
-    @Autowired
-    private BuyerRepository buyerRepository;
+
+    BuyerService buyerService;
 
     @GetMapping
-    public List<BuyerResponse> findAll(){
-        List<BuyerResponse> buyerResponses = new ArrayList<>();
-        List<Buyer> buyers = buyerRepository.findAll();
-        for(Buyer buyer : buyers) {
-            BuyerResponse buyerResponse = new BuyerResponse();
-            buyerResponse.setId(buyer.getId());
-            buyerResponse.setFirstname(buyer.getFirstname());
-            buyerResponse.setLastname(buyer.getLastname());
-            buyerResponse.setAddress(buyer.getAddress());
-            buyerResponse.setCity(buyer.getCity());
-            buyerResponse.setMobile(buyer.getMobile());
-            buyerResponse.setReceipts(buyer.getReceipts());
-
-            buyerResponses.add(buyerResponse);
-        }
-
-        return buyerResponses;
+    public List<BuyerResponseDto> findAll() {
+        return buyerService.findAll();
     }
 
     @GetMapping("{id}")
-    public Buyer findById(@PathVariable Long id){return buyerRepository.getById(id);}
-    
-    @PostMapping
-    public Buyer create(@RequestBody final Buyer buyer){return buyerRepository.saveAndFlush(buyer);}
+    public Buyer findById(@PathVariable final Long id) {
+        return buyerService.findById(id);
+    }
 
-    @RequestMapping(value = "{id}", method = RequestMethod.PUT)
-    public Buyer update(@PathVariable Long id, @RequestBody Buyer buyer){
-        Buyer currentBuyer = buyerRepository.getById(id);
-        BeanUtils.copyProperties(buyer, currentBuyer, "id");
-        return buyerRepository.saveAndFlush(currentBuyer);
+    @PostMapping
+    public Buyer create(@Valid @RequestBody final Buyer buyer) {
+        return buyerService.createOrUpdate(buyer);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT)
+    public Buyer update(@Valid @RequestBody final Buyer buyer) {
+        return buyerService.createOrUpdate(buyer);
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable Long id){
-        buyerRepository.deleteById(id);
+    public void delete(@PathVariable final Long id) {
+        buyerService.deleteById(id);
     }
 
     @GetMapping("/top-city")
-    public MostBuyersFromCity topCity() {
-       return buyerRepository.mostBuyersFromCity();
+    public MostBuyersFromCityDto topCity() {
+        return buyerService.mostBuyersFromCity();
     }
-    
-    
+
+
 }

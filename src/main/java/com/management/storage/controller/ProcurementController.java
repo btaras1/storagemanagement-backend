@@ -1,131 +1,53 @@
 package com.management.storage.controller;
 
 
-import com.management.storage.model.*;
-import com.management.storage.model.composite.ItemProcurementId;
-import com.management.storage.model.composite.ItemStorageId;
-import com.management.storage.pdf.service.PdfGenerateService;
-import com.management.storage.repository.ItemProcurementRepository;
-import com.management.storage.repository.ItemStorageRepository;
-import com.management.storage.repository.ProcurementRepository;
-import org.aspectj.util.PartialOrder;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import com.management.storage.model.Procurement;
+import com.management.storage.services.ProcurementService;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.*;
+import java.util.List;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @RestController
 @RequestMapping("/procurement")
+@RequiredArgsConstructor
+@FieldDefaults(level = PRIVATE, makeFinal = true)
 public class ProcurementController {
-    @Autowired
-    private ProcurementRepository procurementRepository;
 
-    @Autowired
-    private ItemStorageRepository itemStorageRepository;
-
-    @Autowired
-    private ItemProcurementRepository itemProcurementRepository;
-
-    @Autowired
-    private PdfGenerateService pdfGenerateService;
+    ProcurementService procurementService;
 
     @GetMapping
-    List<Procurement> findAll(){ return procurementRepository.findAllByOrderByIdDesc();}
-
-    @GetMapping("setDocumentId")
-    List<Procurement> setDocumentId(){
-        List<Procurement> findAll = procurementRepository.findAll();
-        List<Procurement> newList = new ArrayList<>();
-        for( Procurement procurement : findAll){
-            if(procurement.getDocumentId() == null) procurement.setDocumentId(procurement.getId().toString());
-            newList.add(procurement);
-        }
-        procurementRepository.saveAllAndFlush(newList);
-        return procurementRepository.findAllByOrderByIdDesc();
+    public List<Procurement> findAll() {
+        return procurementService.findAll();
     }
 
     @GetMapping("{id}")
-    public Procurement findById(@PathVariable Long id){return procurementRepository.getById(id);}
+    public Procurement findById(@PathVariable final Long id) {
+        return procurementService.findById(id);
+    }
 
     @PostMapping
-    public Procurement create(@RequestBody final Procurement procurement){
-            List<ItemProcurement> itemsOnProcurement = procurement.getItemProcurements();
-            List<ItemProcurement> mappedItemsOnProcurement = new ArrayList<>();
-            Procurement currentProcurement = procurementRepository.saveAndFlush(procurement);
-
-        for (ItemProcurement item: itemsOnProcurement) {
-            Item currentItem = item.getItem();
-            Storage currentStorage = procurement.getStorage();
-
-            ItemStorageId itemStorageId = new ItemStorageId();
-            itemStorageId.setItemId(currentItem.getId());
-            itemStorageId.setStorageId(currentStorage.getId());
-
-            ItemStorage itemStorage = (itemStorageRepository.findById(itemStorageId)).stream().findFirst().orElse(null);
-
-            if(itemStorage == null) {
-                ItemStorageId newItemStorageId = new ItemStorageId(currentItem.getId(), currentStorage.getId());
-                ItemStorage newItemStorage = new ItemStorage(newItemStorageId,currentItem, currentStorage, item.getQuantity());
-                itemStorageRepository.saveAndFlush(newItemStorage);
-                itemStorage = (itemStorageRepository.findById(newItemStorageId)).stream().findFirst().orElse(null);
-            }
-            else {
-                itemStorage.setQuantity(item.getQuantity() + itemStorage.getQuantity());
-            }
-            itemStorageRepository.saveAndFlush(itemStorage);
-            ItemProcurementId currentItemProcurementId = new ItemProcurementId(currentItem.getId(), currentProcurement.getId());
-            ItemProcurement itemProcurement = itemProcurementRepository.saveAndFlush(new ItemProcurement(currentItemProcurementId, currentItem, currentProcurement, item.getQuantity()));
-            mappedItemsOnProcurement.add(itemProcurement);
-        }
-            currentProcurement.setItemProcurements(null);
-            currentProcurement.setItemProcurements(mappedItemsOnProcurement);
-            return procurementRepository.saveAndFlush(currentProcurement);
+    public Procurement create(@RequestBody final Procurement procurement) {
+        return procurementService.create(procurement);
     }
 
-    @GetMapping("/pdf/{id}")
-    public void getPdf(@PathVariable Long id) {
-        Map<String, Object> data = new HashMap<>();
-        Procurement procurement = procurementRepository.getById(id);
-        data.put("storage", procurement.getStorage());
-        data.put("procurement", procurement);
-        data.put("itemProcurements", procurement.getItemProcurements());
-        String fileName = "NABAVA_" + procurement.getCreated().toString() + "_" + procurement.getStorage().getName() + "_" + procurement.getStorage().getLocation() + "_" + UUID.randomUUID().toString() + ".pdf";
-        pdfGenerateService.generatePdfFile("procurement", data, fileName);
-
-
-    }
     @GetMapping("/download/{id}")
-    public ResponseEntity downloadFromDB(@PathVariable Long id) throws IOException {
-        Map<String, Object> data = new HashMap<>();
-        Procurement procurement = procurementRepository.getById(id);
-        data.put("storage", procurement.getStorage());
-        data.put("procurement", procurement);
-        data.put("itemProcurements", procurement.getItemProcurements());
-        String fileName = "NABAVA_" + procurement.getCreated().toString() + "_" + procurement.getStorage().getName() + "_" + procurement.getStorage().getLocation() + "_" + UUID.randomUUID().toString() + ".pdf";
-        File document = pdfGenerateService.generatePdfFile("procurement", data, fileName);
-        byte[] fileContent = Files.readAllBytes(document.toPath());
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-                .body(fileContent);
+    public ResponseEntity downloadFromDB(@PathVariable final Long id) throws IOException {
+        return procurementService.downloadFromDB(id);
     }
-    @RequestMapping(value = "{id}", method = RequestMethod.PUT)
-    public Procurement update(@PathVariable Long id, @RequestBody Procurement procurement){
-        Procurement currentProcurement = procurementRepository.getById(id);
-        BeanUtils.copyProperties(procurement, currentProcurement, "id");
-        return procurementRepository.saveAndFlush(currentProcurement);
+
+    @RequestMapping(method = RequestMethod.PUT)
+    public Procurement update(@RequestBody final Procurement procurement) {
+        return procurementService.update(procurement);
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable Long id){
-        procurementRepository.deleteById(id);
+    public void delete(@PathVariable final Long id) {
+        procurementService.deleteById(id);
     }
 }

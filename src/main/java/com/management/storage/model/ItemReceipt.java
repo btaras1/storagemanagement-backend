@@ -9,20 +9,19 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 @Entity
 @Table(name= "item_receipt")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ItemReceipt {
     @EmbeddedId
-    @JsonIgnore
-    private ItemReceiptId id;
+    private ItemReceiptId id = new ItemReceiptId();
 
     @ManyToOne
     @MapsId("itemId")
@@ -42,4 +41,57 @@ public class ItemReceipt {
 
     @Column(name = "quantity")
     private Integer quantity;
+
+    public ItemReceipt(Item item, Receipt receipt, Storage storage, Integer quantity) {
+        this.item = item;
+        this.receipt = receipt;
+        this.storage = storage;
+        this.quantity = quantity;
+    }
+
+    public ItemReceipt(Item item, Storage storage, Integer quantity) {
+        this.item = item;
+        this.storage = storage;
+        this.quantity = quantity;
+    }
+
+    public ItemReceiptId getId() {
+        return id;
+    }
+
+    public void setId(ItemReceiptId id) {
+        this.id = id;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public Receipt getReceipt() {
+        return receipt;
+    }
+
+    public void setReceipt(Receipt receipt) {
+        this.receipt = receipt;
+    }
+
+    public Storage getStorage() {
+        return storage;
+    }
+
+    public void setStorage(Storage storage) {
+        this.storage = storage;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
 }

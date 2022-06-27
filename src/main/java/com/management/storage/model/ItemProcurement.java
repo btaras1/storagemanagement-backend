@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.management.storage.model.composite.ItemProcurementId;
 import com.management.storage.model.composite.ItemStorageId;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.annotation.security.DenyAll;
 import javax.persistence.*;
@@ -18,6 +15,7 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name= "item_procurement")
+@Builder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ItemProcurement {
     @EmbeddedId

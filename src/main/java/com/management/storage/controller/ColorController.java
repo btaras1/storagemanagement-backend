@@ -2,37 +2,46 @@ package com.management.storage.controller;
 
 
 import com.management.storage.model.Color;
-import com.management.storage.repository.ColorRepository;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.management.storage.services.ColorService;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @RestController
 @RequestMapping("/color")
+@RequiredArgsConstructor
+@FieldDefaults(level = PRIVATE, makeFinal = true)
 public class ColorController {
-    @Autowired
-    private ColorRepository colorRepository;
+
+    ColorService colorService;
 
     @GetMapping
-    List<Color> findAll(){return colorRepository.findAll();}
+    public List<Color> findAll() {
+        return colorService.findAll();
+    }
 
     @GetMapping("{id}")
-    public Color findById(@PathVariable Long id){return colorRepository.getById(id);}
+    public Color findById(@PathVariable final Long id) {
+        return colorService.findById(id);
+    }
 
     @PostMapping
-    public Color create(@RequestBody final Color color){return colorRepository.saveAndFlush(color);}
+    public Color create(@Valid @RequestBody final Color color) {
+        return colorService.createOrUpdate(color);
+    }
 
-    @RequestMapping(value = "{id}", method = RequestMethod.PUT)
-    public Color update(@PathVariable Long id, @RequestBody Color color){
-        Color currentColor = colorRepository.getById(id);
-        BeanUtils.copyProperties(color, currentColor, "id");
-        return colorRepository.saveAndFlush(currentColor);
+    @RequestMapping(method = RequestMethod.PUT)
+    public Color update(@Valid @RequestBody final Color color) {
+        return colorService.createOrUpdate(color);
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable Long id){
-        colorRepository.deleteById(id);
+    public void delete(@PathVariable final Long id) {
+        colorService.deleteById(id);
     }
- }
+}

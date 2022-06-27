@@ -3,10 +3,7 @@ package com.management.storage.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.management.storage.model.composite.ItemStorageId;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -16,6 +13,7 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name= "item_storage")
+@Builder
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ItemStorage {
     @EmbeddedId

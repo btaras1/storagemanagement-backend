@@ -1,16 +1,16 @@
 package com.management.storage.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -22,19 +22,20 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "receipt")
+@EqualsAndHashCode(exclude = {"itemReceipts", "employees", "buyer"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Receipt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotEmpty
     private String documentId;
-    @Temporal(TemporalType.DATE)
-    private Date sold;
-    @Temporal(TemporalType.DATE)
+    @NotNull
+    private LocalDate sold;
     @Nullable
-    private Date mountedDate;
+    private LocalDate mountedDate;
     @Nullable
-    private Boolean mounted;
+    private Boolean mounted = false;
     @Nullable
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -42,14 +43,13 @@ public class Receipt {
     private String description;
 
     @CreationTimestamp
-    @Temporal(TemporalType.DATE)
-    private Date created;
+    private LocalDate created;
     @UpdateTimestamp
-    @Temporal(TemporalType.DATE)
-    private Date modified;
+    private LocalDate modified;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name="buyer_id", nullable=true)
+    @NotNull
     private Buyer buyer;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -58,6 +58,6 @@ public class Receipt {
             inverseJoinColumns = @JoinColumn(name = "employee_id"))
     private List<Employee> employees;
 
-    @OneToMany(mappedBy = "receipt")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval=true)
     private Set<ItemReceipt> itemReceipts = new HashSet<>();
 }

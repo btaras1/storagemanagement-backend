@@ -1,5 +1,6 @@
 package com.management.storage.model.composite;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Embeddable
+@Builder
 public class ItemProcurementId implements Serializable {
     @Column(name = "item_id")
     private Long itemId;

@@ -2,19 +2,19 @@ package com.management.storage.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+
+
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.util.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,11 +23,13 @@ import java.util.Set;
 @Entity
 @Table(name = "item")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@EqualsAndHashCode(exclude = {"itemStorages", "itemProcurements", "itemReceipts"})
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(length = 100)
+    @NotNull(message = "Value cannot be null")
     private String value;
     @Nullable
     @Column(columnDefinition = "TEXT")
@@ -37,6 +39,7 @@ public class Item {
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name="itemtype_id", nullable=true)
+    @NotNull(message = "Type cannot be null")
     private ItemType itemType;
 
     @Nullable
@@ -44,21 +47,22 @@ public class Item {
     @JoinColumn(name="color_id", nullable=true)
     private Color color;
     @CreationTimestamp
-    @Temporal(TemporalType.DATE)
-    private Date created;
+    private LocalDate created;
     @UpdateTimestamp
-    @Temporal(TemporalType.DATE)
-    private Date modified;
+    private LocalDate modified;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "item", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<ItemStorage> itemStorages = new HashSet<>();
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "item", cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<ItemProcurement> itemProcurements = new HashSet<>();
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "item")
     @JsonIgnore
     private Set<ItemReceipt> itemReceipts = new HashSet<>();
+
+
+
 }

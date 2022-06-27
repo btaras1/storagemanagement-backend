@@ -1,6 +1,6 @@
 package com.management.storage.repository;
 
-import com.management.storage.dto.response.FullDetailItemsInStorage;
+import com.management.storage.dto.response.FullDetailItemsInStorageDto;
 import com.management.storage.dto.response.ItemsCountResponse;
 import com.management.storage.dto.response.ItemsInStorageResponse;
 import com.management.storage.model.Storage;
@@ -30,7 +30,7 @@ public interface StorageRepository extends JpaRepository<Storage, Long> {
             "LEFT JOIN item_receipt itr ON itr.item_id = it.id AND itr.storage_id = s.id\n" +
             " GROUP BY s.id, it.id, ity.value, it.description, col.value, its.quantity, mountedquantity\n" +
             "ORDER BY s.id", nativeQuery = true)
-    List<FullDetailItemsInStorage> test();
+    List<FullDetailItemsInStorageDto> itemsInStorageFullDetails();
     @Query(value = "SELECT it.id, it.value as value, it.description, ity.value as type, col.value as color, it.guide_needed as guideNeeded, SUM(itr.quantity) as quantity\n" +
             "    FROM item it LEFT JOIN item_receipt itr ON it.id = itr.item_id\n" +
             "    LEFT JOIN receipt r ON r.id = itr.receipt_id\n" +
